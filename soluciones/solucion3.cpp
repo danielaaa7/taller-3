@@ -9,7 +9,7 @@ using namespace std;
 
 //Construir arbol k-ario con claves 
 /*se  debe  construir  un   ́arbol   de  busqueda  k + 1-ario,  como  el  de  la  Figura.  Es  decir,  
-que  cada  nodo  almacene  hasta  k  claves  (por  ejemplo,  con un pequeño array de largo k) y se almacenen 
+que  cada  NodoK  almacene  hasta  k  claves  (por  ejemplo,  con un pequeño array de largo k) y se almacenen 
 hasta k + 1 punteros para ir a los nodos descendientes. La idea 
 es la misma que en los BST, donde, por cada nodo, se almacenan k=1 claves y se tienen k + 1  =  2 punteros,
 pero ahora generalizado a cualquier k que sea potencia de 2. 
@@ -23,19 +23,19 @@ presentacion clara de los resultados)
 
 //Estuctura del nodo del arbol k-ario
 
-struct Nodo {
+struct NodoK{
     vector<string> claves;
-    vector<Nodo*> hijos;
+    vector<NodoK*> hijos;
     bool esHoja;
 };
 
-Nodo* crearNodo(bool esHoja);
-Nodo* insertar(Nodo* raiz, const string& clave, int k);
-Nodo* eliminar(Nodo* raiz, const string& clave, int k);
-void liberar(Nodo* raiz);
-void experimentoBusqueda(Nodo* raiz, const char* archivoBusqueda);
-void experimentoInsercion(Nodo* raiz, const char* archivoInsertar, int k);
-void experimentoEliminacion(Nodo* raiz, const char* archivoEliminar, int k);
+NodoK* crearNodoK(bool esHoja);
+NodoK* insertar(NodoK* raiz, const string& clave, int k);
+NodoK* eliminar(NodoK* raiz, const string& clave, int k);
+void liberar(NodoK* raiz);
+void experimentoBusqueda(NodoK* raiz, const char* archivoBusqueda);
+void experimentoInsercion(NodoK* raiz, const char* archivoInsertar, int k);
+void experimentoEliminacion(NodoK* raiz, const char* archivoEliminar, int k);
 vector<string> cargarDiccionario(const char* nombreArchivo);
 
 int main(){
@@ -58,31 +58,41 @@ int main(){
 
         cout << "Ingrese valor de k(8, 32, 128, 512): ";
         cin >> k;
+
+        clock_t inicio,fin;
+        inicio = clock();
+        NodoK *raiz = nullptr;
+        for(const string& palabra : D1){
+            raiz  = insertar(raiz, palabra, k);
+        }
+
     }
     while(opcion != 0);
     cout << "\nPrograma finalizado con exito";
     return 0;
 }
 
-Nodo* crearNodo(bool esHoja){
+NodoK* crearNodoK(bool esHoja){
+    NodoK *t = new Nodok();
+
 }
 
-Nodo* insertar(Nodo* raiz, const string& clave, int k){
+NodoK* insertar(NodoK* raiz, const string& clave, int k){
 }
 
-Nodo* eliminar(Nodo* raiz, const string& clave, int k){
+NodoK* eliminar(NodoK* raiz, const string& clave, int k){
 }
 
-void liberar(Nodo* raiz){
+void liberar(NodoK* raiz){
 }
 
-void experimentoBusqueda(Nodo* raiz, const char* archivoBusqueda){
+void experimentoBusqueda(NodoK* raiz, const char* archivoBusqueda){
 }
 
-void experimentoInsercion(Nodo* raiz, const char* archivoInsertar, int k){
+void experimentoInsercion(NodoK* raiz, const char* archivoInsertar, int k){
 }
 
-void experimentoEliminacion(Nodo* raiz, const char* archivoEliminar, int k){
+void experimentoEliminacion(NodoK* raiz, const char* archivoEliminar, int k){
 }
 
 vector<string> cargarDiccionario(const char* nombreArchivo){
