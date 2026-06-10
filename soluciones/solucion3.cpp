@@ -21,17 +21,35 @@ es la siguiente (desde luego puede agregar más experimentos si estima que es ne
 presentacion clara de los resultados)
 */
 
+/*Considere el parámetro K para la tercera solución, además de un parámetro REP para el número de 
+repeticiones de la búsqueda de claves. 
+1. Tiempo y espacio para la construcción desde cero. Construya, con el dicionario D1, la tercera 
+EDs y calcule el tiempo de construcción y la memoria total utilizada por cada solución. Grafique 
+adecuadamente. 
+2. Tiempo de busqueda de claves existentes. Tome REP claves aleatorios de D1 y busquelas en la 
+estructura. Pruebe con diferentes tamanños para k, k ∈ {8, 32, 128, 512}. 
+Obtenga el tiempo promedio de CPU que tarda cada solución en encontrar una clave. 
+3. Eliminación e Inserción. Tome el diccionario D2. Recorra desde la primera palabra de D2 hasta 
+la última e intercaladamente inserte y elimine la palabra leída desde D2; por tanto habrán |D2|/2 
+inserciones y |D2|/2 eliminaciones, estas últimas pueden ser no existosas ya que es posible que la 
+palabra que se desea eliminar no exista en las estructuras.
+*/
+
 //Estuctura del nodo del arbol k-ario
 
 struct NodoK{
     vector<string> claves;
     vector<NodoK*> hijos;
-    bool esHoja;
+
+    NodoK(int k){
+        hijos.resize(k + 1, nullptr);
+    }
 };
 
-NodoK* crearNodoK(bool esHoja);
+NodoK* crearNodoK(const vector<string> & claves, const vector<NodoK*>& hijos, bool esHoja);
 NodoK* insertar(NodoK* raiz, const string& clave, int k);
 NodoK* eliminar(NodoK* raiz, const string& clave, int k);
+bool buscarClave(NodoK* nodo, const string& clave, int k);
 void liberar(NodoK* raiz);
 void experimentoBusqueda(NodoK* raiz, const char* archivoBusqueda);
 void experimentoInsercion(NodoK* raiz, const char* archivoInsertar, int k);
@@ -43,9 +61,9 @@ int main(){
     int k;
     do{
         cout << "\nMenu 3\n";
-        cout << "1. Busqueda de 10000 palabras de D2\n";
-        cout << "2. Insercion de 5000 palabras de D2\n";
-        cout << "3. Eliminacion de 5000 ultimas palabras de D2\n";
+        cout << "1. Construccion desde D1.txt\n";
+        cout << "2. Busqueda repetidas palabras\n";
+        cout << "3. Eliminacion / Insercion de palabras intercaladas\n";
         cout << "0. Salir\n";
         cout << "Seleccione opcion: ";
         cin >> opcion;
@@ -65,22 +83,61 @@ int main(){
         for(const string& palabra : D1){
             raiz  = insertar(raiz, palabra, k);
         }
+        fin = clock();
 
+        
+
+
+        liberar(raiz);
     }
     while(opcion != 0);
     cout << "\nPrograma finalizado con exito";
     return 0;
 }
 
-NodoK* crearNodoK(bool esHoja){
-    NodoK *t = new Nodok();
-
+NodoK* crearNodoK(const vector<string> & claves, const vector<NodoK*>& hijos, bool esHoja){
+    NodoK* nodo = new NodoK(0); // Inicialmente sin claves
+    nodo->claves = claves;
+    nodo->hijos = hijos;
+    nodo->esHoja = esHoja;
+    return nodo;
 }
 
 NodoK* insertar(NodoK* raiz, const string& clave, int k){
+    // Implementar la insercion en el arbol k-ario
+    if(!raiz) return crearNodoK({clave}, {}, true);
+    
+    NodoK* nodo = raiz;
+    while(!nodo->esHoja){
+        size_t i = 0;
+
+        //Encontrar la posición correcta para descender
+        while(i < nodo->claves.size() && clave > nodo->claves[i]) i++;
+        
+        if(i < nodo->claves.size() && nodo->claves[i] == clave){
+            return raiz; // La clave ya existe, no insertar
+        }
+
+        //Descender al hijo correspondiente
+        if(i < nodo->hijos.size() && nodo->hijos[i]){
+            nodo = nodo->hijos[i];
+        } else {
+            // Si el hijo no existe, crear un nuevo nodo hoja
+             if(i < nodo->hijos.size()){
+                nodo->hijos[i] = crearNodoK({clave}, {}, true);
+            }
+            return raiz;
+        }
+
+    }
+
+
 }
 
 NodoK* eliminar(NodoK* raiz, const string& clave, int k){
+}
+
+bool buscarClave(NodoK* nodo, const string& clave, int k){
 }
 
 void liberar(NodoK* raiz){
@@ -96,4 +153,19 @@ void experimentoEliminacion(NodoK* raiz, const char* archivoEliminar, int k){
 }
 
 vector<string> cargarDiccionario(const char* nombreArchivo){
+    vector<string> palabras;
+    ifstream archivo(nombreArchivo);
+    string palabra;
+
+    if (!archivo.is_open()) {
+        cerr << "Error al abrir el archivo: " << nombreArchivo << endl;
+        return palabras;
+    }
+    while (getline(archivo, palabra)) {
+        palabras.push_back(palabra);
+    }
+    archivo.close();
+    sort(palabras.begin(), palabras.end());
+
+    return palabras;
 }
