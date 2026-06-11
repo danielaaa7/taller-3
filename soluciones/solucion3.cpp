@@ -46,14 +46,10 @@ struct NodoK{
     }
 };
 
-NodoK* crearNodoK(const vector<string> & claves, const vector<NodoK*>& hijos, bool esHoja);
 NodoK* insertar(NodoK* raiz, const string& clave, int k);
 NodoK* eliminar(NodoK* raiz, const string& clave, int k);
 bool buscarClave(NodoK* nodo, const string& clave, int k);
 void liberar(NodoK* raiz);
-void experimentoBusqueda(NodoK* raiz, const char* archivoBusqueda);
-void experimentoInsercion(NodoK* raiz, const char* archivoInsertar, int k);
-void experimentoEliminacion(NodoK* raiz, const char* archivoEliminar, int k);
 vector<string> cargarDiccionario(const char* nombreArchivo);
 
 int main(){
@@ -85,22 +81,10 @@ int main(){
         }
         fin = clock();
 
-        
-
-
-        liberar(raiz);
     }
     while(opcion != 0);
     cout << "\nPrograma finalizado con exito";
     return 0;
-}
-
-NodoK* crearNodoK(const vector<string> & claves, const vector<NodoK*>& hijos, bool esHoja){
-    NodoK* nodo = new NodoK(0); // Inicialmente sin claves
-    nodo->claves = claves;
-    nodo->hijos = hijos;
-    nodo->esHoja = esHoja;
-    return nodo;
 }
 
 NodoK* insertar(NodoK* raiz, const string& clave, int k){
@@ -130,27 +114,22 @@ NodoK* insertar(NodoK* raiz, const string& clave, int k){
         }
 
     }
-
-
 }
 
-NodoK* eliminar(NodoK* raiz, const string& clave, int k){
+NodoK* eliminar(NodoK* raiz, const string& clave, int k){ 
+    //daniela
 }
+
+
 
 bool buscarClave(NodoK* nodo, const string& clave, int k){
+    //Diego
 }
 
 void liberar(NodoK* raiz){
+    //daniela
 }
 
-void experimentoBusqueda(NodoK* raiz, const char* archivoBusqueda){
-}
-
-void experimentoInsercion(NodoK* raiz, const char* archivoInsertar, int k){
-}
-
-void experimentoEliminacion(NodoK* raiz, const char* archivoEliminar, int k){
-}
 
 vector<string> cargarDiccionario(const char* nombreArchivo){
     vector<string> palabras;
