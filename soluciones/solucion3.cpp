@@ -127,7 +127,13 @@ bool buscarClave(NodoK* nodo, const string& clave, int k){
 }
 
 void liberar(NodoK* raiz){
-    //daniela
+    //caso base: Arbol vacio
+    if (raiz == nullptr)
+        return;
+    for (NodoK hijo : raiz->hijos){
+        liberar(hijo);
+    }
+    delete raiz; //libera nodo actual
 }
 
 
