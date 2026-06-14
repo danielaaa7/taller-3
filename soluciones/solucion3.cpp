@@ -117,7 +117,46 @@ NodoK* insertar(NodoK* raiz, const string& clave, int k){
 }
 
 NodoK* eliminar(NodoK* raiz, const string& clave, int k){ 
-    //daniela
+    if(raiz == nullptr)
+        return nullptr;
+    int i = 0;
+    while(i < raiz->claves.size() && raiz->claves[i]){
+        i++:
+    }
+    //Caso 1: clave encontrada en el nodo
+    if(i < raiz->claves.size() && raiz->claves[i] == clave){
+        //Si es hoja entonces borra directamente
+        bool esHoja = true;
+        for(int j = 0; j < raiz->hijos.size(); j++){
+            if(raiz->hijos[j] != nullptr){ //si existe algun hijo
+                esHoja = false;
+                break; 
+            }
+        }
+        //Si es hoja se borra la clave
+        if(esHoja){
+            raiz->claves.erase(raiz->claves.begin() + i);
+            return raiz;
+        }
+        else{
+            //Caso 2: el nodo es interno y se debe remplazar con el sucesor
+            NodoK* sucesor = raiz->hijos[i+1];
+            while(sucesor && sucesor->hijos[0]){
+                sucesor = sucesor->hijos[0];
+            }
+            if(sucesor != nullptr && sucesor->claves.empty() == false){
+                raiz->claves[i] = sucesor->claves[0];
+                raiz->hijos[i+1] = eliminar(raiz->hijos[i+1], sucesor->claves[0], k);
+            }
+        }   
+    }
+    else{
+        //Caso 3: la clave no esta en este nodo
+        if(i < raiz->hijos.size()){
+            raiz->hijos[i] = eliminar(raiz->hijos[i], clave, k);
+        } 
+    }
+    return raiz;
 }
 
 
