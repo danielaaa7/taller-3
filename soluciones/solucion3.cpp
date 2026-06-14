@@ -40,9 +40,11 @@ palabra que se desea eliminar no exista en las estructuras.
 struct NodoK{
     vector<string> claves;
     vector<NodoK*> hijos;
+    bool esHoja;
 
-    NodoK(int k){
+    NodoK(int k, bool hoja = true){
         hijos.resize(k + 1, nullptr);
+        esHoja = hoja;
     }
 };
 
@@ -119,9 +121,11 @@ NodoK* insertar(NodoK* raiz, const string& clave, int k){
 NodoK* eliminar(NodoK* raiz, const string& clave, int k){ 
     if(raiz == nullptr)
         return nullptr;
+
     int i = 0;
-    while(i < raiz->claves.size() && raiz->claves[i]){
-        i++:
+    //busca la posicion correcta en el nodo
+    while(i < raiz->claves.size() && clave > raiz->claves[i]){
+        i++;
     }
     //Caso 1: clave encontrada en el nodo
     if(i < raiz->claves.size() && raiz->claves[i] == clave){
@@ -141,7 +145,7 @@ NodoK* eliminar(NodoK* raiz, const string& clave, int k){
         else{
             //Caso 2: el nodo es interno y se debe remplazar con el sucesor
             NodoK* sucesor = raiz->hijos[i+1];
-            while(sucesor && sucesor->hijos[0]){
+            while(sucesor != nullptr && sucesor->hijos[0] != nullptr){
                 sucesor = sucesor->hijos[0];
             }
             if(sucesor != nullptr && sucesor->claves.empty() == false){
@@ -169,7 +173,7 @@ void liberar(NodoK* raiz){
     //caso base: Arbol vacio
     if (raiz == nullptr)
         return;
-    for (NodoK hijo : raiz->hijos){
+    for (NodoK* hijo : raiz->hijos){
         liberar(hijo);
     }
     delete raiz; //libera nodo actual
