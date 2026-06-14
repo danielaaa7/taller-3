@@ -45,8 +45,8 @@ int main(){
         cin >> k;
         NodoK* raiz = nullptr;
 
-        // ---------------- Opción 1: Construcción ----------------
-        if(opcion == 1){
+        switch(opcion){
+        case 1:{
             clock_t inicio = clock();
             for (const string& palabra : D1) {
                 raiz = insertar(raiz, palabra, k);
@@ -54,9 +54,9 @@ int main(){
             clock_t fin = clock();
             double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
             cout << "Construcción completa en " << tiempo << " segundos.\n";
+            break;
         }
-        // ---------------- Opción 2: Búsqueda ----------------
-        else if (opcion == 2){
+        case 2:{
             // Primero construir el árbol
             for (const string& palabra : D1) {
                 raiz = insertar(raiz, palabra, k);
@@ -76,10 +76,9 @@ int main(){
             clock_t fin = clock();
             double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
             cout << "Tiempo total de búsqueda: " << tiempo << " segundos.\n";
+            break;
         }
-
-        // ---------------- Opción 3: Eliminación / Inserción ----------------
-        else if (opcion == 3){
+        case 3:{
             // Primero construir el árbol
             for (const string& palabra : D1) {
                 raiz = insertar(raiz, palabra, k);
@@ -93,9 +92,14 @@ int main(){
                 }
             }
             cout << "Inserciones y eliminaciones completadas.\n";
+            break;
+        }
+        default:
+            cout << "Opción invalida\n";
         }
         liberar(raiz);
-    }while(opcion != 0);
+    }
+    while(opcion != 0);
     cout << "\nPrograma finalizado con éxito\n";
     return 0;
 }
