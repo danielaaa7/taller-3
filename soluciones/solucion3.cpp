@@ -101,10 +101,9 @@ int main(){
 }
 
 //divide el hijo en la posicion  'indice hijo' del nodo padre
-void DividirHijos(NodoK *padre, int IndiceHijo, int k){
+void DividirHijos(NodoK *padre, int indiceHijo, int k){
     NodoK* hijo = padre->hijos[indiceHijo];
     int medio = k / 2;
-
     // Crear nuevo nodo hermano derecho
     NodoK* nuevo = new NodoK(k, hijo->esHoja);
 
@@ -112,38 +111,32 @@ void DividirHijos(NodoK *padre, int IndiceHijo, int k){
     for (int i = medio + 1; i < hijo->claves.size(); i++) {
         nuevo->claves.push_back(hijo->claves[i]);
     }
-
     // Si no es hoja, copiar también los hijos derechos
     if (!hijo->esHoja) {
         for (int i = medio + 1; i < hijo->hijos.size(); i++) {
             nuevo->hijos[i - (medio + 1)] = hijo->hijos[i];
         }
     }
-
     // Reducir el hijo original a la mitad izquierda
+    string ClaveMedio = hijo->claves[medio];
     hijo->claves.resize(medio);
-
-    // Insertar el nuevo hijo en el padre
-    padre->hijos.insert(padre->hijos.begin() + indiceHijo + 1, nuevo);
-
-    // Subir la clave del medio al padre
-    padre->claves.insert(padre->claves.begin() + indiceHijo, hijo->claves[medio]);
+    padre->claves.insert(padre->claves.begin() + indiceHijo,
+    ClaveMedio);
 }
 
 NodoK* insertar(NodoK* raiz, const string& clave, int k){
     //caso base: arbol vacio
     if(!raiz){
         NodoK *nuevo = new NodoK(k, true);
-        nuevo->claves.push_back(claves);
+        nuevo->claves.push_back(clave);
         return nuevo;
     }
     //si la raiz esta llena, dividirla
-    if(raiz->claves == k){
+    if(raiz->claves.size() == k){
         NodoK *nuevoPadre = new NodoK(k, false);
         nuevoPadre->hijos[0] = raiz;
         DividirHijos(nuevoPadre, 0, k);
         raiz = nuevoPadre;
-
     }
     NodoK* nodo = raiz;
     while (!nodo->esHoja) {
@@ -152,7 +145,7 @@ NodoK* insertar(NodoK* raiz, const string& clave, int k){
         i++; // posición donde debe ir la clave
         // Si el hijo está lleno, dividirlo antes de descender
         if(nodo->hijos[i] && nodo->hijos[i]->claves.size() == k) {
-            splitChild(nodo, i, k);
+            DividirHijos(nodo, i, k);
             if (clave > nodo->claves[i]) i++;
         }
         if (!nodo->hijos[i]) {
@@ -237,7 +230,7 @@ bool buscarClave(NodoK* nodo, const string& clave, int k){
     if(nodo == nullptr) return false;
     int i = 0;
     // Buscar la posición donde debería estar la clave
-    while(i <nodo->claves.size() && claves > nodo->claves[i]) i++;
+    while(i <nodo->claves.size() && clave > nodo->claves[i]) i++;
 
     // Caso 1: la clave está en el nodo actual
     if (i < nodo->claves.size() && nodo->claves[i] == clave) return true;
