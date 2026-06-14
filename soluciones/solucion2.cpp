@@ -29,7 +29,7 @@ int main(){
     int opcion;
     int k;
     do{
-        cout << "\nMENU 2\n";
+        cout << "\nMENU \n";
         cout << "1. Busqueda de 10000 palabras de D2\n";
         cout << "2. Insercion de 5000 palabras de D2\n";
         cout << "3. Eliminacion de 5000 ultimas palabras de D2\n";
@@ -91,7 +91,7 @@ int main(){
             break;
         }
         case 3:{ //eliminacion
-            cout << "\nEXPERIMENTO Eliminacion: \n";
+            cout << "\nEXPERIMENTO ELIMINACION: \n";
             int n = min(5000, ( int)D2.size());
             inicio = clock();
             for(int i = 0; i < n; i++){
