@@ -1,286 +1,229 @@
 #include <iostream>
-#include <string>
 #include <vector>
+#include <string>
 #include <fstream>
 #include <algorithm>
 #include <ctime>
 
 using namespace std;
-//Estuctura del nodo del arbol k-ario
+
 struct NodoK{
     vector<string> claves;
     vector<NodoK*> hijos;
-    bool esHoja;
 
-    NodoK(int k, bool hoja = true){
+    NodoK(int k) {
         hijos.resize(k + 1, nullptr);
-        esHoja = hoja;
     }
 };
 
-void DividirHijos(NodoK *padre, int IndiceHijo, int k);
-NodoK* insertar(NodoK* raiz, const string& clave, int k);
-void fusionarNodos(NodoK* padre, int indice, int k);
-NodoK* eliminar(NodoK* raiz, const string& clave, int k);
-bool buscarClave(NodoK* nodo, const string& clave, int k);
-void liberar(NodoK* raiz);
-vector<string> cargarDiccionario(const char* nombreArchivo);
+int posicion(NodoK* nodo, const string& clave);
+bool buscarClave(NodoK* nodo, const string& clave);
+void insertarEnNodo(NodoK* nodo, const string& clave);
+void insertarClave(NodoK* nodo,const string& clave,int k);
+bool eliminarClave(NodoK* nodo, const string& clave);
+void liberarArbol(NodoK* nodo);
+int contarNodos(NodoK* nodo);
+long long memoriaArbol( NodoK* nodo, int k);
+vector<string> cargarDiccionario(const string& archivo);
 
-int main(){
-    int opcion, k;
-    do{
-        cout << "\nMenu 3\n";
-        cout << "1. Construcción desde D1.txt\n";
-        cout << "2. Búsqueda repetida de palabras\n";
-        cout << "3. Eliminación / Inserción intercaladas\n";
+
+int main() {
+    int opcion;
+    do {
+        cout << "\nMENU\n";
+        cout << "1. Busqueda de 10000 palabras de D2\n";
+        cout << "2. Insercion de 5000 palabras de D2\n";
+        cout << "3. Eliminacion de 5000 ultimas palabras de D2\n";
         cout << "0. Salir\n";
-        cout << "Seleccione opción: ";
-        cin >> opcion;
-        if (opcion == 0) break;
-        // Cargar diccionarios
-        vector<string> D1 = cargarDiccionario("D1.txt");
-        vector<string> D2 = cargarDiccionario("D2.txt");
+        cout << "Seleccione opcion: ";
 
-        cout << "Ingrese valor de k (8, 32, 128, 512): ";
+        cin >> opcion;
+        if(opcion == 0) break;
+
+        cout << "\nCargando D1.txt...\n";
+
+        vector<string> D1 =cargarDiccionario("D1.txt");
+        vector<string> D2 =cargarDiccionario("D2.txt");
+
+        cout << "Cantidad inicial: " << D1.size()<< endl;
+        int k;
+        cout << "Ingrese k (8,32,128,512): ";
         cin >> k;
-        NodoK* raiz = nullptr;
+        NodoK* raiz = new NodoK(k);
+        clock_t inicio = clock();
+
+        for(size_t i=0; i<D1.size();i++) {
+            insertarClave(raiz,D1[i],k);
+        }
+        clock_t fin =
+            clock();
+        double tiempoConstruccion = double(fin-inicio) / CLOCKS_PER_SEC;
+
+        cout << "Tiempo construccion: "
+             << tiempoConstruccion
+             << " segundos\n";
 
         switch(opcion){
-        case 1:{
-            clock_t inicio = clock();
-            for (const string& palabra : D1) {
-                raiz = insertar(raiz, palabra, k);
+        case 1:
+        {
+            int encontrados = 0;
+            int n = min(10000,(int)D2.size());
+            inicio = clock();
+            for(int i=0;i<n;i++) {
+                if(buscarClave(raiz,D2[i])) encontrados++;
             }
-            clock_t fin = clock();
-            double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
-            cout << "Construcción completa en " << tiempo << " segundos.\n";
+            fin = clock();
+            double total = double(fin-inicio) / CLOCKS_PER_SEC;
+
+            cout << "\nEXPERIMENTO BUSQUEDA\n";
+            cout << "Busquedas: " << n << endl;
+            cout << "Encontradas: " << encontrados << endl;
+            cout << "Tiempo total: " << total << endl;
+            cout << "Tiempo promedio: "<< total/n << endl;
             break;
         }
-        case 2:{
-            // Primero construir el árbol
-            for (const string& palabra : D1) {
-                raiz = insertar(raiz, palabra, k);
+        case 2: {
+            int n = min(5000, (int)D2.size());
+            inicio = clock();
+            for(int i=0; i<n;i++) {
+                insertarClave(raiz, D2[i], k);
             }
-            int REP;
-            cout << "Ingrese número de repeticiones de búsqueda: ";
-            cin >> REP;
-            srand(time(nullptr));
-            clock_t inicio = clock();
-            /*
-            for (int i = 0; i < REP; i++) {
-                string clave = D1[rand() % D1.size()];
-                bool encontrado = buscarClave(raiz, clave, k);
-                cout << "Buscando '" << clave << "': "
-                   << (encontrado ? "Encontrada" : "No encontrada") << endl;
-            }*/
-            clock_t fin = clock();
-            double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
-            cout << "Tiempo total de búsqueda: " << tiempo << " segundos.\n";
+            fin = clock();
+            double total = double(fin-inicio) / CLOCKS_PER_SEC;
+            cout << "\nEXPERIMENTO INSERCION\n";
+            cout << "Insertadas: " << n << endl;
+            cout << "Tiempo total: " << total << endl;
+            cout << "Tiempo promedio: " << total/n << endl;
             break;
         }
-        case 3:{
-            // Primero construir el árbol
-            for (const string& palabra : D1) {
-                raiz = insertar(raiz, palabra, k);
+        case 3: {
+            int n = min( 5000, (int)D2.size());
+            inicio = clock();
+            for(int i=0;i<n; i++){
+                eliminarClave(raiz, D2[D2.size()-1-i]);
             }
-            cout << "Procesando inserciones y eliminaciones de D2...\n";
-            for (size_t i = 0; i < D2.size(); i++) {
-                if (i % 2 == 0) {
-                    raiz = insertar(raiz, D2[i], k);
-                } else {
-                    raiz = eliminar(raiz, D2[i], k);
-                }
-            }
-            cout << "Inserciones y eliminaciones completadas.\n";
+            fin = clock();
+            double total = double(fin-inicio) / CLOCKS_PER_SEC;
+            cout << "\nEXPERIMENTO ELIMINACION\n";
+            cout << "Eliminadas: " << n << endl;
+            cout << "Tiempo total: " << total << endl;
+            cout << "Tiempo promedio: " << total/n << endl;
             break;
         }
         default:
-            cout << "Opción invalida\n";
+            cout << "Opcion invalida\n";
         }
-        liberar(raiz);
-    }
-    while(opcion != 0);
-    cout << "\nPrograma finalizado con éxito\n";
+        cout << "\nNodos del arbol: " << contarNodos(raiz) << endl;
+        cout << "Memoria aproximada: " << memoriaArbol(raiz, k) / 1024.0 << " KB\n";
+
+        liberarArbol(raiz);
+    }while(opcion != 0);
+    cout << "\nPrograma finalizado con exito\n";
     return 0;
 }
 
-//divide el hijo en la posicion  'indice hijo' del nodo padre
-void DividirHijos(NodoK *padre, int indiceHijo, int k){
-    NodoK* hijo = padre->hijos[indiceHijo];
-    int medio = k / 2;
-    // Crear nuevo nodo hermano derecho
-    NodoK* nuevo = new NodoK(k, hijo->esHoja);
+int posicion(NodoK* nodo, const string& clave) {
 
-    // Copiar la mitad derecha de las claves al nuevo nodo
-    for (long unsigned int i = medio + 1; i < hijo->claves.size(); i++){
-        nuevo->claves.push_back(hijo->claves[i]);
+    int i = 0;
+
+    while(i < (int)nodo->claves.size() &&
+          clave > nodo->claves[i]) {
+        i++;
     }
-    // Si no es hoja, copiar también los hijos derechos
-    if (!hijo->esHoja) {
-        for(long unsigned int i = medio + 1; i < hijo->hijos.size(); i++){
-            nuevo->hijos[i - (medio + 1)] = hijo->hijos[i];
-        }
-    }
-    padre->hijos.insert(padre->hijos.begin() + indiceHijo + 1, nuevo);
-    // Reducir el hijo original a la mitad izquierda
-    string ClaveMedio = hijo->claves[medio];
-    hijo->claves.resize(medio);
-    padre->claves.insert(padre->claves.begin() + indiceHijo, ClaveMedio);
+    return i;
 }
 
-NodoK* insertar(NodoK* raiz, const string& clave, int k){
-    //caso base: arbol vacio
-    if(!raiz){
-        NodoK *nuevo = new NodoK(k, true);
-        nuevo->claves.push_back(clave);
-        return nuevo;
-    }
-    //si la raiz esta llena, dividirla
-    if(raiz->claves.size() == k){
-        NodoK *nuevoPadre = new NodoK(k, false);
-        nuevoPadre->hijos[0] = raiz;
-        DividirHijos(nuevoPadre, 0, k);
-        raiz = nuevoPadre;
-    }
-    NodoK* nodo = raiz;
-    while(!nodo->esHoja){
-        long unsigned int i = nodo->claves.size() - 1;
-        while (i >= 0 && clave < nodo->claves[i]) i--;
-        i++; // posición donde debe ir la clave
-        // Si el hijo está lleno, dividirlo antes de descender
-        if(nodo->hijos[i] && nodo->hijos[i]->claves.size() == k) {
-            DividirHijos(nodo, i, k);
-            if (clave > nodo->claves[i]) i++;
-        }
-        if(!nodo->hijos[i]){
-            nodo->hijos[i] = new NodoK(k, true);
-        }
-        nodo = nodo->hijos[i];
-    }
-    // Insertar en el nodo hoja en orden
-    auto it = lower_bound(nodo->claves.begin(), nodo->claves.end(), clave);
-    if (it == nodo->claves.end() || *it != clave) {
-        nodo->claves.insert(it, clave);
-    }
-    return raiz;
-}
-
-void fusionarNodos(NodoK* padre, int indice, int k) {
-    if(indice + 1 >= padre->hijos.size()) return;
-
-    NodoK* hijoIzq = padre->hijos[indice];
-    NodoK* hijoDer = padre->hijos[indice + 1];
-
-    if(!hijoIzq || !hijoDer) return;
-    // Bajar la clave del padre al hijo izquierdo
-    hijoIzq->claves.push_back(padre->claves[indice]);
-
-    // Mover las claves del hijo derecho
-    hijoIzq->claves.insert(hijoIzq->claves.end(),
-                           hijoDer->claves.begin(),
-                           hijoDer->claves.end());
-    // Mover los hijos del hijo derecho
-    if (!hijoDer->esHoja) {
-        for (size_t j = 0; j < hijoDer->hijos.size(); j++) {
-            if (hijoDer->hijos[j]) {
-                hijoIzq->hijos[j] = hijoDer->hijos[j]; // mover puntero
-                hijoDer->hijos[j] = nullptr;           // evitar doble delete
-            }
-        }
-    }
-    // Eliminar la clave del padre que bajó
-    padre->claves.erase(padre->claves.begin() + indice);
-
-    // Eliminar el hijo derecho del padre
-    padre->hijos.erase(padre->hijos.begin() + indice + 1);
-
-    // Liberar memoria del hijo derecho
-    delete hijoDer;
-}
-
-
-NodoK* eliminar(NodoK* raiz, const string& clave, int k){ 
-    if(raiz == nullptr) return nullptr;
-
-    long unsigned int i = 0;
-    //busca la posicion correcta en el nodo
-    while(i < raiz->claves.size() && clave > raiz->claves[i]) i++;
-
-    //Caso 1: clave encontrada en el nodo
-    if(i < raiz->claves.size() && raiz->claves[i] == clave){
-        if(raiz->esHoja){
-            // Si es hoja, borrar directamente
-            raiz->claves.erase(raiz->claves.begin() + i);
-        }else{
-            // Si es interno, reemplazar con sucesor
-            NodoK* sucesor = raiz->hijos[i+1];
-            while (sucesor && !sucesor->esHoja) {
-                sucesor = sucesor->hijos[0];
-            }
-            if (sucesor && !sucesor->claves.empty()) {
-                raiz->claves[i] = sucesor->claves[0];
-                raiz->hijos[i+1] = eliminar(raiz->hijos[i+1], sucesor->claves[0], k);
-            }
-        }
-    }else{
-        // Caso 2: la clave no está en este nodo
-        if (raiz->esHoja)  return raiz; // No encontrada
-        //verificar antes de desender que el hijo exista
-        if (i < raiz->hijos.size() && raiz->hijos[i]) {
-            raiz->hijos[i] = eliminar(raiz->hijos[i], clave, k);
-        }else{
-            return raiz; // hijo nulo → no hay nada que eliminar
-        }
-    }
-    // Si el hijo tiene menos de ⌈k/2⌉ claves, fusionar
-    if(raiz->hijos[i] && raiz->hijos[i]->claves.size() < (k / 2)){
-        if(!raiz->claves.empty())
-            fusionarNodos(raiz, i, k);
-        else
-            fusionarNodos(raiz, i - 1, k);
-    }
-    return raiz;
-}
-
-bool buscarClave(NodoK* nodo, const string& clave, int k){
+bool buscarClave(NodoK* nodo, const string& clave) {
     if(nodo == nullptr) return false;
-    long unsigned int i = 0;
-    // Buscar la posición donde debería estar la clave
-    while(i <nodo->claves.size() && clave > nodo->claves[i]) i++;
+    int pos = posicion(nodo, clave);
 
-    // Caso 1: la clave está en el nodo actual
-    if (i < nodo->claves.size() && nodo->claves[i] == clave) return true;
-    
-    // Caso 2: si es hoja, no está
-    if(nodo->esHoja) return false;
-
-    // Caso 3: descender al hijo correspondiente
-    return buscarClave(nodo->hijos[i], clave, k);
-}
-
-void liberar(NodoK* raiz){
-    //caso base: Arbol vacio
-    if (raiz == nullptr) return;
-    for (NodoK* hijo : raiz->hijos){
-        liberar(hijo);
+    if(pos < (int)nodo->claves.size() && nodo->claves[pos] == clave){
+        return true;
     }
-    delete raiz; //libera nodo actual
+    return buscarClave(nodo->hijos[pos],clave);
 }
 
-vector<string> cargarDiccionario(const char* nombreArchivo){
+void insertarEnNodo(NodoK* nodo, const string& clave){
+    nodo->claves.push_back(clave);
+    int i = nodo->claves.size() - 1;
+    while(i > 0 && nodo->claves[i] < nodo->claves[i-1]) {
+        swap(nodo->claves[i],nodo->claves[i-1] );
+        i--;
+    }
+}
+
+void insertarClave(NodoK* nodo,const string& clave,int k){
+    int pos = posicion(nodo, clave);
+    if(pos < (int)nodo->claves.size() && nodo->claves[pos] == clave) return;
+    
+    if((int)nodo->claves.size() < k){
+        insertarEnNodo(nodo,clave);
+        return;
+    }
+    if(nodo->hijos[pos] == nullptr) {
+        nodo->hijos[pos] = new NodoK(k);
+    }
+    insertarClave(nodo->hijos[pos], clave, k);
+}
+
+bool eliminarClave(NodoK* nodo, const string& clave) {
+    if(nodo == nullptr) return false;
+
+    int pos = posicion(nodo, clave);
+    if(pos < (int)nodo->claves.size() &&
+       nodo->claves[pos] == clave) {
+        nodo->claves.erase(nodo->claves.begin() + pos);
+        return true;
+    }
+    return eliminarClave(
+        nodo->hijos[pos],
+        clave
+    );
+}
+
+void liberarArbol(NodoK* nodo){
+    if(nodo == nullptr) return;
+    for(size_t i=0; i<nodo->hijos.size(); i++){
+        liberarArbol(nodo->hijos[i]);
+    }
+    delete nodo;
+}
+
+int contarNodos(NodoK* nodo){
+    if(nodo == nullptr) return 0;
+    int total = 1;
+    for(size_t i=0; i<nodo->hijos.size(); i++){
+        total += contarNodos(nodo->hijos[i]);
+    }
+    return total;
+}
+
+// MEMORIA APROXIMADA
+long long memoriaArbol( NodoK* nodo, int k) {
+    if(nodo == nullptr) return 0;
+    long long memoria = sizeof(NodoK);
+    memoria += nodo->claves.capacity() * sizeof(string);
+    memoria += nodo->hijos.capacity() * sizeof(NodoK*);
+    for(size_t i=0; i<nodo->hijos.size(); i++){
+        memoria += memoriaArbol(nodo->hijos[i],k);
+    }
+    return memoria;
+}
+
+vector<string> cargarDiccionario(const string& archivo){
     vector<string> palabras;
-    ifstream archivo(nombreArchivo);
+    ifstream in(archivo);
     string palabra;
 
-    if (!archivo.is_open()) {
-        cerr << "Error al abrir el archivo: " << nombreArchivo << endl;
+    if(!in.is_open()){
+        cerr << "Error al abrir " << archivo << endl;
         return palabras;
     }
-    while (getline(archivo, palabra)) {
+    while(in >> palabra){ 
         palabras.push_back(palabra);
     }
-    archivo.close();
-    sort(palabras.begin(), palabras.end());
-
+    in.close();
+    sort(palabras.begin(),palabras.end());
     return palabras;
 }
+
