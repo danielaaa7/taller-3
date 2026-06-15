@@ -66,13 +66,13 @@ int main(){
             cin >> REP;
             srand(time(nullptr));
             clock_t inicio = clock();
+            /*
             for (int i = 0; i < REP; i++) {
                 string clave = D1[rand() % D1.size()];
                 bool encontrado = buscarClave(raiz, clave, k);
-                // Puedes comentar esta línea si no quieres imprimir cada búsqueda
                 cout << "Buscando '" << clave << "': "
-                     << (encontrado ? "Encontrada" : "No encontrada") << endl;
-            }
+                   << (encontrado ? "Encontrada" : "No encontrada") << endl;
+            }*/
             clock_t fin = clock();
             double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
             cout << "Tiempo total de búsqueda: " << tiempo << " segundos.\n";
@@ -112,20 +112,20 @@ void DividirHijos(NodoK *padre, int indiceHijo, int k){
     NodoK* nuevo = new NodoK(k, hijo->esHoja);
 
     // Copiar la mitad derecha de las claves al nuevo nodo
-    for (int i = medio + 1; i < hijo->claves.size(); i++) {
+    for (long unsigned int i = medio + 1; i < hijo->claves.size(); i++){
         nuevo->claves.push_back(hijo->claves[i]);
     }
     // Si no es hoja, copiar también los hijos derechos
     if (!hijo->esHoja) {
-        for (int i = medio + 1; i < hijo->hijos.size(); i++) {
+        for(long unsigned int i = medio + 1; i < hijo->hijos.size(); i++){
             nuevo->hijos[i - (medio + 1)] = hijo->hijos[i];
         }
     }
+    padre->hijos.insert(padre->hijos.begin() + indiceHijo + 1, nuevo);
     // Reducir el hijo original a la mitad izquierda
     string ClaveMedio = hijo->claves[medio];
     hijo->claves.resize(medio);
-    padre->claves.insert(padre->claves.begin() + indiceHijo,
-    ClaveMedio);
+    padre->claves.insert(padre->claves.begin() + indiceHijo, ClaveMedio);
 }
 
 NodoK* insertar(NodoK* raiz, const string& clave, int k){
@@ -143,8 +143,8 @@ NodoK* insertar(NodoK* raiz, const string& clave, int k){
         raiz = nuevoPadre;
     }
     NodoK* nodo = raiz;
-    while (!nodo->esHoja) {
-        int i = nodo->claves.size() - 1;
+    while(!nodo->esHoja){
+        long unsigned int i = nodo->claves.size() - 1;
         while (i >= 0 && clave < nodo->claves[i]) i--;
         i++; // posición donde debe ir la clave
         // Si el hijo está lleno, dividirlo antes de descender
@@ -152,7 +152,7 @@ NodoK* insertar(NodoK* raiz, const string& clave, int k){
             DividirHijos(nodo, i, k);
             if (clave > nodo->claves[i]) i++;
         }
-        if (!nodo->hijos[i]) {
+        if(!nodo->hijos[i]){
             nodo->hijos[i] = new NodoK(k, true);
         }
         nodo = nodo->hijos[i];
@@ -166,20 +166,26 @@ NodoK* insertar(NodoK* raiz, const string& clave, int k){
 }
 
 void fusionarNodos(NodoK* padre, int indice, int k) {
+    if(indice + 1 >= padre->hijos.size()) return;
+
     NodoK* hijoIzq = padre->hijos[indice];
     NodoK* hijoDer = padre->hijos[indice + 1];
 
+    if(!hijoIzq || !hijoDer) return;
     // Bajar la clave del padre al hijo izquierdo
     hijoIzq->claves.push_back(padre->claves[indice]);
 
-    // Copiar las claves del hijo derecho al hijo izquierdo
-    for (const string& clave : hijoDer->claves) {
-        hijoIzq->claves.push_back(clave);
-    }
-    // Copiar los hijos del hijo derecho
+    // Mover las claves del hijo derecho
+    hijoIzq->claves.insert(hijoIzq->claves.end(),
+                           hijoDer->claves.begin(),
+                           hijoDer->claves.end());
+    // Mover los hijos del hijo derecho
     if (!hijoDer->esHoja) {
-        for (NodoK* subHijo : hijoDer->hijos) {
-            hijoIzq->hijos.push_back(subHijo);
+        for (size_t j = 0; j < hijoDer->hijos.size(); j++) {
+            if (hijoDer->hijos[j]) {
+                hijoIzq->hijos[j] = hijoDer->hijos[j]; // mover puntero
+                hijoDer->hijos[j] = nullptr;           // evitar doble delete
+            }
         }
     }
     // Eliminar la clave del padre que bajó
@@ -192,16 +198,17 @@ void fusionarNodos(NodoK* padre, int indice, int k) {
     delete hijoDer;
 }
 
+
 NodoK* eliminar(NodoK* raiz, const string& clave, int k){ 
     if(raiz == nullptr) return nullptr;
 
-    int i = 0;
+    long unsigned int i = 0;
     //busca la posicion correcta en el nodo
     while(i < raiz->claves.size() && clave > raiz->claves[i]) i++;
-    
+
     //Caso 1: clave encontrada en el nodo
     if(i < raiz->claves.size() && raiz->claves[i] == clave){
-        if (raiz->esHoja){
+        if(raiz->esHoja){
             // Si es hoja, borrar directamente
             raiz->claves.erase(raiz->claves.begin() + i);
         }else{
@@ -218,11 +225,16 @@ NodoK* eliminar(NodoK* raiz, const string& clave, int k){
     }else{
         // Caso 2: la clave no está en este nodo
         if (raiz->esHoja)  return raiz; // No encontrada
-        else raiz->hijos[i] = eliminar(raiz->hijos[i], clave, k);
+        //verificar antes de desender que el hijo exista
+        if (i < raiz->hijos.size() && raiz->hijos[i]) {
+            raiz->hijos[i] = eliminar(raiz->hijos[i], clave, k);
+        }else{
+            return raiz; // hijo nulo → no hay nada que eliminar
+        }
     }
     // Si el hijo tiene menos de ⌈k/2⌉ claves, fusionar
     if(raiz->hijos[i] && raiz->hijos[i]->claves.size() < (k / 2)){
-        if (i < raiz->claves.size())
+        if(!raiz->claves.empty())
             fusionarNodos(raiz, i, k);
         else
             fusionarNodos(raiz, i - 1, k);
@@ -232,7 +244,7 @@ NodoK* eliminar(NodoK* raiz, const string& clave, int k){
 
 bool buscarClave(NodoK* nodo, const string& clave, int k){
     if(nodo == nullptr) return false;
-    int i = 0;
+    long unsigned int i = 0;
     // Buscar la posición donde debería estar la clave
     while(i <nodo->claves.size() && clave > nodo->claves[i]) i++;
 
