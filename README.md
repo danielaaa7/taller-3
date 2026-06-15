@@ -12,7 +12,10 @@
     de las operaciones al permitir saltos entre niveles. Con esta estructura se realizaron experimento
     de búsqueda (10000 palabras), inserción (5000 palabras) y eliminación (5000 palabras), midiendo
     tiempos totales y promedios.
-
+    
+    -En la solución 3: Basado en un árbol k-ario, que mejora mas la eficiencia de las operaciones. Permite 
+     que cada nodo almacene múltiples claves ordenadas y disponga de hasta k+1 hijos. Esto reduce la altura del árbol.
+     
     Objetivo general:
     Evaluar cómo cambia el rendimiento al pasar de una solución básica a una optimizada, relacionando los 
     resultados experimentales con el análisis teórico en notación O. De esta forma, se busca comprender mejor 
@@ -113,5 +116,47 @@ Análisis de complejidad (notación O):
     -Eliminación: O(n)
 
 ## Solución 3: Arbol k_ario
+Descripcion:
+    implementa un árbol k-ario de búsqueda para almacenar y gestionar las palabras contenidas en los diccionarios D1.txt
+    y D2.txt. El objetivo principal es evaluar el comportamiento de una estructura jerárquica capaz de almacenar grandes 
+    cantidades de palabras y analizar experimentalmente el costo de las operaciones de búsqueda, inserción y eliminación
+    para distintos valores de k.
 
+Archivos necesarios:
+    -solucion3.cpp -> código fuente principal.
+    -D1.txt -> diccionario base.
+    -D2.txt -> conjunto de palabras para pruebas.
+
+Como compilar y ejecutar:
+    g++ -Wall -std=c++17 -O2 -o solucion3.cpp solucion3
+    ./solucion3
+
+Funcionamiento del programa:
+    1.- Se cargan las palabras contenidas en D1.txt y D2.txt.
+    2.- Seleccionar un valor para k.
+    3.- Se construye un árbol k-ario utilizando todas las palabras de D1.
+    4.- Se ejecuta el experimento correspondiente.
+    5.- Se mide el tiempo de ejecución.
+    6.- Se muestran estadísticas del experimento.
+    7.- Se libera toda la memoria utilizada por la estructura.
+
+Estructura del código:
+    -posicion(): Determina la posición donde debería encontrarse una palabra dentro de un nodo.
+    -buscarClave(): Busca una palabra dentro del árbol k-ario. Compara la palabra con las claves del nodo actual y, si no la  
+    encuentra, continúa la búsqueda en el hijo correspondiente hasta encontrarla o llegar a un nodo nulo.
+    -insertarEnNodo(): Inserta una palabra dentro de un nodo manteniendo el orden lexicográfico de las claves almacenadas.
+    -insertarClave(): Inserta una nueva palabra en el árbol. Si el nodo actual tiene espacio disponible, la almacena allí; de lo contrario, continúa descendiendo 
+    hacia el hijo correspondiente hasta encontrar una ubicación adecuada.
+    -eliminarClave(): Busca una palabra dentro del árbol y la elimina cuando es encontrada. Si la palabra no se encuentra en el
+    nodo actual, continúa la búsqueda en el subárbol correspondiente.
+    -liberarArbol(): Libera toda la memoria dinámica utilizada por la estructura, recorriendo el árbol desde las hojas hasta la raíz. 
+    -contarNodos(): Recorre recursivamente todo el árbol y contabiliza la cantidad total de nodos existentes
+    -memoriaArbol(): Calcula una estimación de la memoria utilizada por el árbol considerando la memoria ocupada por los nodos, las claves almacenadas y los 
+    punteros a hijos.
+    -cargardiccionario(): Lee todas las palabras desde un archivo de texto y las almacena en un vector ordenado.
+
+Análisis de complejidad (notación O):
+    -Busqueda:
+    -Inserción:
+    -Eliminación:
     Descripcion:
