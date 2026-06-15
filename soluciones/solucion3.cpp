@@ -30,7 +30,7 @@ vector<string> cargarDiccionario(const string& archivo);
 int main() {
     int opcion;
     do {
-        cout << "\nMENU\n";
+        cout << "\nMENU 3\n";
         cout << "1. Busqueda de 10000 palabras de D2\n";
         cout << "2. Insercion de 5000 palabras de D2\n";
         cout << "3. Eliminacion de 5000 ultimas palabras de D2\n";
@@ -118,16 +118,13 @@ int main() {
 
         liberarArbol(raiz);
     }while(opcion != 0);
-    cout << "\nPrograma finalizado con exito\n";
+    cout << "\n¡¡¡Programa finalizado con exito!!!\n";
     return 0;
 }
 
 int posicion(NodoK* nodo, const string& clave) {
-
     int i = 0;
-
-    while(i < (int)nodo->claves.size() &&
-          clave > nodo->claves[i]) {
+    while(i < (int)nodo->claves.size() && clave > nodo->claves[i]) {
         i++;
     }
     return i;
@@ -168,17 +165,13 @@ void insertarClave(NodoK* nodo,const string& clave,int k){
 
 bool eliminarClave(NodoK* nodo, const string& clave) {
     if(nodo == nullptr) return false;
-
     int pos = posicion(nodo, clave);
     if(pos < (int)nodo->claves.size() &&
        nodo->claves[pos] == clave) {
         nodo->claves.erase(nodo->claves.begin() + pos);
         return true;
     }
-    return eliminarClave(
-        nodo->hijos[pos],
-        clave
-    );
+    return eliminarClave(nodo->hijos[pos], clave);
 }
 
 void liberarArbol(NodoK* nodo){
