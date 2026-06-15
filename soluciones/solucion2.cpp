@@ -112,7 +112,7 @@ int main(){
     }
     while (opcion != 0);
 
-    cout << "\nPrograma finalizado con exito\n";
+    cout << "\n¡¡¡Programa finalizado con exito!!!\n";
     return 0;
 }
 
